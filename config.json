@@ -1,0 +1,56 @@
+
+{
+    "date": {
+        "upper_grow_start_date" : "(2020, 10, 1, 0, 0, 0, 644415)",
+        "lower_grow_start_date" : "(2020, 9, 22, 1, 0, 0, 0, 644415)"
+    },
+    "phase" : {
+        "germ" : {
+            "light_hours" : 16,
+            "length_in_days" : 5
+        },
+        "veg" : {
+            "light_hours" : 18,
+            "length_in_days": 30
+        },
+        "bloom" : {
+            "light_hours" : 12,
+            "length_in_days" : 20
+        }
+    },
+    "light_trigger_hour" : 10,
+    "pin" : {
+        "pump" : 18,
+        "light_upper_outer" : 23,
+        "light_upper_inner" : 22,
+        "light_lower_outer" : 21,
+        "light_lower_inner" : 19,
+        "solenoid_upper_left" : 32, 
+        "solenoid_upper_right" : 33,
+        "solenoid_lower_left" : 25,
+        "solenoid_lower_right" : 26,
+        "DS18B20_reservoir" : 0,
+        "DS18B20_root_lower_left" : 27,
+        "DS18B20_root_lower_right" : 26,
+        "DHT22_plant_lower_left" : 33,
+        "DHT22_plant_lower_right" : 32,
+        "pressure_sensor" : 36
+    },
+    "i2c" : {
+        "ec" : 100,
+        "ph" : 99,
+        "I2C_clock" : 22,
+        "I2C_data": 21
+    },
+    "ssid" : "YOSHIDA",
+    "password" : "Brentwood11",
+    "esp_type" : {
+        "solenoids" : 1,
+        "data_reader" : 1,
+        "data_uploader" : 1,
+        "pump" : 1,
+        "lights" : 1
+    }
+  }
+
+
