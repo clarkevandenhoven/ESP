@@ -1,4 +1,6 @@
 
+
+
 {
     "date": {
         "upper_grow_start_date" : "(2020, 10, 1, 0, 0, 0, 644415)",
@@ -21,20 +23,24 @@
     "light_trigger_hour" : 10,
     "pin" : {
         "pump" : 18,
-        "light_upper_outer" : 23,
-        "light_upper_inner" : 22,
-        "light_lower_outer" : 21,
-        "light_lower_inner" : 19,
+        "light_lower_outer" : 23,
+        "light_lower_inner" : 22,
+        "light_upper_outer" : 21,
+        "light_upper_inner" : 19,
         "solenoid_upper_left" : 32, 
         "solenoid_upper_right" : 33,
         "solenoid_lower_left" : 25,
         "solenoid_lower_right" : 26,
-        "DS18B20_reservoir" : 0,
-        "DS18B20_root_lower_left" : 27,
-        "DS18B20_root_lower_right" : 26,
+        "DS18B20_reservoir" : 32,
+        "DS18B20_root_upper" : 17,
+        "DS18B20_root_lower" : 27,
+        "DS18B20_plant_upper": 5, 
+        "DS18B20_plant_lower" : 14,
         "DHT22_plant_lower_left" : 33,
         "DHT22_plant_lower_right" : 32,
-        "pressure_sensor" : 36
+        "pressure_sensor" : 36,
+        "fan_upper": 16,
+        "fan_lower" : 17
     },
     "i2c" : {
         "ec" : 100,
@@ -52,5 +58,8 @@
         "lights" : 1
     }
   }
+
+
+
 
 

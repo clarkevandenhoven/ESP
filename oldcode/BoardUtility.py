@@ -5,8 +5,8 @@ import machine, time, network, urequests, ujson, ntptime, utime
 
 # Connect board to wifi
 def connect_wifi():
-    ssid = "you tell me?"
-    password =  "itsonthefridge"
+    ssid = "YOSHIDA"
+    password =  "Brentwood11"
 
     station = network.WLAN(network.STA_IF)
 
@@ -94,8 +94,10 @@ def upload_dht22_data():
 
 def read_ds18b20(pin):
   sensor = ds18x20.DS18X20(onewire.OneWire(machine.Pin(pin)))
+  print(sensor)
   try:
     roms = sensor.scan()
+    print(roms)
     sensor.convert_temp()
     time.sleep_ms(750) # time needed to convert temperature
     for rom in roms:
@@ -108,6 +110,7 @@ def read_ds18b20(pin):
 
 
 def read_dht22(pin):
+  
 
   sensor = dht.DHT22(machine.Pin(pin))
   try:
@@ -333,6 +336,7 @@ def check_lights(shelf):
     #turn light on
     print('turn light on 3')
     turn_lights_on(phase, shelf)
+
 
 
 

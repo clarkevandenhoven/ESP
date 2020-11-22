@@ -1,3 +1,5 @@
+
+
 # This class handles the coordination of the boards functions
 import ujson
 import network
@@ -75,4 +77,89 @@ class System:
     
     def test_solenoids(self):
         self.device_handler.test_solenoids()
-       
+     
+    def test_ec(self):
+        ec, ppm = self.device_handler.read_ec()
+        print("EC: " + str(ec) + " PPM: " + str(ppm))
+      
+    def test_ph(self):
+        pH = self.device_handler.read_ph()
+        print("pH: " + str(pH))
+      
+    def test_pressure(self):
+          pressure = self.device_handler.read_pressure()
+          print("Pressure: " + str(pressure))
+    
+    def test_ds18b20(self, pin_name):
+          temp = self.device_handler.read_ds18b20(pin_name)
+          print(temp)
+        
+    def turn_off_pump(self):
+        self.device_handler.turn_off_pump()
+    
+    def turn_on_pump(self):
+        self.device_handler.turn_on_pump()
+    
+    def close_solenoids(self):
+        self.device_handler.close_solenoids()
+    
+    def open_solenoids(self):
+        self.device_handler.open_solenoids()
+    
+    def lights_on(self):
+        self.device_handler.lights_off()
+    
+    def lights_off(self):
+        self.device_handler.lights_on()
+    
+    def upper_outer_on(self):
+        self.device_handler.upper_outer_on()
+    
+    def upper_outer_off(self):
+        self.device_handler.upper_outer_off()
+        
+    def upper_inner_on(self):
+        self.device_handler.upper_inner_on()
+    
+    def upper_inner_off(self):
+        self.device_handler.upper_inner_off()
+        
+    def lower_outer_on(self):
+        self.device_handler.lower_outer_on()
+    
+    def lower_outer_off(self):
+        self.device_handler.lower_outer_off()
+        
+    def lower_inner_on(self):
+        self.device_handler.lower_inner_on()
+    
+    def lower_inner_off(self):
+        self.device_handler.lower_inner_off()
+        
+        
+    def s_upper_left_on(self):
+        self.device_handler.s_upper_left_on()
+    
+    def s_upper_left_off(self):
+        self.device_handler.s_upper_left_off()
+        
+    def s_upper_right_on(self):
+        self.device_handler.s_upper_right_on()
+    
+    def s_upper_right_off(self):
+        self.device_handler.s_upper_right_off()
+        
+    def s_lower_left_on(self):
+        self.device_handler.s_lower_left_on()
+    
+    def s_lower_left_off(self):
+        self.device_handler.s_lower_left_off()
+        
+    def s_lower_right_on(self):
+        self.device_handler.s_lower_right_on()
+    
+    def s_lower_right_off(self):
+        self.device_handler.s_lower_right_off()
+
+
+

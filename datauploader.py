@@ -1,3 +1,4 @@
+
 # This class handles all the data uploads to the Azure server
 import ujson
 import urequests
@@ -17,4 +18,5 @@ class DataUploader:
         self.logger.log("Data uploaded: " + str(data))
         response = urequests.put(self.URL, data = ujson.dumps(data), headers=headers)
         self.logger.log("Server response" + str(response.json()))
+
 

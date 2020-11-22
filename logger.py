@@ -1,3 +1,4 @@
+
 # This class handles application logging
 import machine
 
@@ -20,5 +21,6 @@ class Logger:
     # Uploads current log file to class' upload_endpoint
     def upload():
         pass
+
 
 

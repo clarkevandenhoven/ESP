@@ -1,3 +1,5 @@
+
+
 # This class serves as an interface between the ESP and the sensors
 import machine
 from time import sleep, sleep_ms
@@ -20,15 +22,18 @@ class DeviceHandler:
 
     def configure_i2c(self, configs):
         i2c = machine.I2C(-1, machine.Pin(configs["i2c"]["I2C_clock"]), machine.Pin(configs["i2c"]["I2C_data"]))
+        print(i2c)
+        print(i2c.scan())
         return i2c
 
     def configure_pins(self, configs):
         pin_dict = {}
         for pin in configs["pin"]:
-            if pin != "pressure_sensor" OR pin != "DS18B20_reservoir":
+            if pin != "pressure_sensor" and pin != "DS18B20_reservoir" and pin != "DS18B20_lower":
+                print(pin)
                 pin_dict[pin] = machine.Pin(configs["pin"][pin], machine.Pin.OUT)
             else:
-                machine.Pin(configs["pin"][pin])
+                pin_dict[pin] = machine.Pin(configs["pin"][pin])
         return pin_dict
 
     def read_ec(self):
@@ -87,12 +92,15 @@ class DeviceHandler:
             roms = sensor.scan()
             sensor.convert_temp()
             sleep_ms(750)
+            temps = []
+            # measure the right then the left sensors
             for rom in roms:
                 temp = sensor.read_temp(rom)
+                temps.append(temp)
         except OSError as e:
             self.logger.log("Failed to read DS18B20 sensor")
             temp = 0
-        return temp
+        return temps
 
     def read_dht22(self, pin):
         sensor = dht.DHT22(self.pins[pin])
@@ -227,5 +235,89 @@ class DeviceHandler:
           temp = self.read_ds18b20(self.pins["pin_name"])
           print("Temperature: " + temp)
           
+    def turn_off_pump(self):
+        self.pins["pump"].on()
+    
+    def turn_on_pump(self):
+        self.pins["pump"].off()
+        
+    def open_solenoids(self):
+        self.pins["solenoid_upper_left"].off()
+        self.pins["solenoid_upper_right"].off()
+        self.pins["solenoid_lower_left"].off()
+        self.pins["solenoid_lower_right"].off()
+    
+    def close_solenoids(self):
+        self.pins["solenoid_upper_left"].on()
+        self.pins["solenoid_upper_right"].on()
+        self.pins["solenoid_lower_left"].on()
+        self.pins["solenoid_lower_right"].on()
+        
+    def lights_on(self):
+        self.pins["light_upper_outer"].off()
+        self.pins["light_upper_inner"].off()
+        self.pins["light_lower_outer"].off()
+        self.pins["light_lower_inner"].off()
+    
+    def lights_off(self):    
+        self.pins["light_upper_outer"].on()
+        self.pins["light_upper_inner"].on()
+        self.pins["light_lower_outer"].on()
+        self.pins["light_lower_inner"].on()
+        
+    
+    def upper_outer_on(self):
+        self.pins["light_upper_outer"].on()
+    
+    def upper_outer_off(self):
+        self.pins["light_upper_outer"].off()
+        
+    def upper_inner_on(self):
+        self.pins["light_upper_inner"].on()
+    
+    def upper_inner_off(self):
+        self.pins["light_upper_inner"].off()
+        
+    def lower_outer_on(self):
+        self.pins["light_lower_outer"].on()
+    
+    def lower_outer_off(self):
+        self.pins["light_lower_outer"].off()
+        
+    def lower_inner_on(self):
+        self.pins["light_lower_inner"].on()
+    
+    def lower_inner_off(self):
+        self.pins["light_lower_inner"].off()   
+        
+    
+    
+    def s_upper_left_on(self):
+        self.pins["solenoid_upper_left"].on()
+    
+    def s_upper_left_off(self):
+        self.pins["solenoid_upper_left"].off()
+        
+    def s_upper_right_on(self):
+        self.pins["solenoid_upper_right"].on()
+    
+    def s_upper_right_off(self):
+        self.pins["solenoid_upper_right"].off()
+        
+    def s_lower_left_on(self):
+        self.pins["solenoid_lower_left"].on()
+    
+    def s_lower_left_off(self):
+        self.pins["solenoid_lower_left"].off()
+        
+    def s_lower_right_on(self):
+        self.pins["solenoid_lower_right"].on()
+    
+    def s_lower_right_off(self):
+        self.pins["solenoid_lower_right"].off()   
+
+
+
+
 
 
