@@ -143,8 +143,11 @@ class DeviceHandler:
         if self.configs["esp_type"]["ec_reader"]:
             data["ec"] = self.reac_ec()
         if self.configs["esp_type"]["temp_reader"]:
-            data["temperature_reservoir"] = self.read_ds18b20(self.pins["DS18B20_reservoir"])
-
+            data["temperature_reservoir"] = self.read_ds18b20("DS18B20_reservoir")
+            data["temperature_root_upper"] = self.read_ds18b20("DS18B20_root_upper")
+            data["temperature_root_lower"] = self.read_ds18b20("DS18B20_root_lower")
+            data["temperature_plant_upper"] = self.read_ds18b20("DS18B20_plant_upper")
+            data["tempearture_plant_lower"] = self.read_ds18b20("DS18B20_plant_lower")
         return data
 
 
