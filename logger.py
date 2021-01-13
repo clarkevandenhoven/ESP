@@ -22,4 +22,3 @@ class Logger:
     def upload():
         pass
 
-

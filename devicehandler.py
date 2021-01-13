@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 
 
 
@@ -157,7 +158,7 @@ class DeviceHandler:
 
         if shelf == "upper":
             shelf_phase = self.configs["date"]["upper_grow_start_date"]
-            
+
         cleaned = shelf_phase.split(",")
         time_list = []
         for num in cleaned:
@@ -220,13 +221,13 @@ class DeviceHandler:
             elif current_hour == (self.configs["light_trigger_hour"] + light_off_duration):
                 self.logger.log("Turn " + shelf + " light on")
                 self.turn_lights_on(phase, shelf)
-      
+
     def check_pump(self):
-        if self.read_pressure() < 80: 
+        if self.read_pressure() < 80:
             while self.read_pressure() < 100:
                  self.turn_on_pump()
             self.turn_off_pump()
-            
+
     def check_fans(self):
         for pin in self.pins:
             if "plant" in pin and "DHT" not in pin:
@@ -235,105 +236,105 @@ class DeviceHandler:
                 if measured_temperature > self.configs["fan_trigger_temperature"]:
                     if "lower " in pin:
                         self.pins["fan_lower"].on()
-                    if "upper" in pin: 
+                    if "upper" in pin:
                         self.pins["fan_upper"].on()
                 else:
                     if "lower " in pin:
                         self.pins["fan_lower"].off()
-                    if "upper" in pin: 
+                    if "upper" in pin:
                         self.pins["fan_upper"].off()
-                        
+
     def test_pump(self):
         self.pins["main_pump"].on()
         sleep(10)
         self.pins["main_pump"].off()
-      
+
     def test_solenoids(self):
         self.open_close_solenoids()
-      
+
     def turn_off_pump(self):
         self.pins["main_pump"].on()
-    
+
     def turn_on_pump(self):
         self.pins["main_pump"].off()
-        
+
     def open_solenoids(self):
         self.pins["solenoid_upper_left"].on()
         self.pins["solenoid_upper_right"].on()
         self.pins["solenoid_lower_left"].on()
         self.pins["solenoid_lower_right"].on()
-    
+
     def close_solenoids(self):
         self.pins["solenoid_upper_left"].off()
         self.pins["solenoid_upper_right"].off()
         self.pins["solenoid_lower_left"].off()
         self.pins["solenoid_lower_right"].off()
-        
+
     def lights_on(self):
         self.pins["light_upper_outer"].off()
         self.pins["light_upper_inner"].off()
         self.pins["light_lower_outer"].off()
         self.pins["light_lower_inner"].off()
-    
-    def lights_off(self):    
+
+    def lights_off(self):
         self.pins["light_upper_outer"].on()
         self.pins["light_upper_inner"].on()
         self.pins["light_lower_outer"].on()
         self.pins["light_lower_inner"].on()
-        
-    
+
+
     def upper_outer_on(self):
         self.pins["light_upper_outer"].on()
-    
+
     def upper_outer_off(self):
         self.pins["light_upper_outer"].off()
-        
+
     def upper_inner_on(self):
         self.pins["light_upper_inner"].on()
-    
+
     def upper_inner_off(self):
         self.pins["light_upper_inner"].off()
-        
+
     def lower_outer_on(self):
         self.pins["light_lower_outer"].on()
-    
+
     def lower_outer_off(self):
         self.pins["light_lower_outer"].off()
-        
+
     def lower_inner_on(self):
         self.pins["light_lower_inner"].on()
-    
+
     def lower_inner_off(self):
-        self.pins["light_lower_inner"].off()   
-        
-    
-    
+        self.pins["light_lower_inner"].off()
+
+
+
     def s_upper_left_on(self):
         self.pins["solenoid_upper_left"].on()
-    
+
     def s_upper_left_off(self):
         self.pins["solenoid_upper_left"].off()
-        
+
     def s_upper_right_on(self):
         self.pins["solenoid_upper_right"].on()
-    
+
     def s_upper_right_off(self):
         self.pins["solenoid_upper_right"].off()
-        
+
     def s_lower_left_on(self):
         self.pins["solenoid_lower_left"].on()
-    
+
     def s_lower_left_off(self):
         self.pins["solenoid_lower_left"].off()
-        
+
     def s_lower_right_on(self):
         self.pins["solenoid_lower_right"].on()
-    
-    def s_lower_right_off(self):
-        self.pins["solenoid_lower_right"].off()   
 
-    
-    
+    def s_lower_right_off(self):
+        self.pins["solenoid_lower_right"].off()
+
+
+
     def p_pump_on(self):
         p_pump = []
         if "p_pump" in self.configs[pin].key:
@@ -342,37 +343,18 @@ class DeviceHandler:
             pump.on()
             sleep(10)
             pump.off()
-    
-    
+
+
     def fan_upper_on(self):
         self.pins["fan_upper"].on()
-    
+
     def fan_upper_off(self):
         self.pins["fan_upper"].off()
-    
+
     def fan_lower_on(self):
         self.pins["fan_lower"].on()
-    
+
     def fan_lower_off(self):
         self.pins["fan_lower"].off()
-    
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
