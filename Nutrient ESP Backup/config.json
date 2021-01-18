@@ -1,0 +1,109 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+    "date": {
+        "upper_grow_start_date" : "(2020, 10, 1, 0, 0, 0, 644415)",
+        "lower_grow_start_date" : "(2020, 9, 22, 1, 0, 0, 0, 644415)"
+    },
+    "phase" : {
+        "germ" : {
+            "light_hours" : 16,
+            "length_in_days" : 5
+        },
+        "veg" : {
+            "light_hours" : 18,
+            "length_in_days": 30
+        },
+        "bloom" : {
+            "light_hours" : 12,
+            "length_in_days" : 20
+        }
+    },
+    "light_trigger_hour" : 10,
+    "pin" : {
+        "main_pump" : 18,
+        "light_lower_outer" : 23,
+        "light_lower_inner" : 22,
+        "light_upper_outer" : 21,
+        "light_upper_inner" : 19,
+        "solenoid_upper_left" : 32, 
+        "solenoid_upper_right" : 0,
+        "solenoid_lower_left" : 0,
+        "solenoid_lower_right" : 0,
+        "DS18B20_reservoir" : 32,
+        "DS18B20_root_upper" : 17,
+        "DS18B20_root_lower" : 0, 
+        "DS18B20_plant_lower" : 14,
+        "DHT22_plant_lower_left" : 33,
+        "DHT22_plant_lower_right" : 32,
+        "pressure_sensor" : 36,
+        "p_pump3": 16,
+        "p_pump4" : 17,
+        "p_pump1" : 15,
+        "p_pump2" : 4,
+        "p_pump5" : 5,
+        "p_pump6" : 18,
+        "stirrer_1" : 14, 
+        "stirrer_2" : 27,
+        "stirrer_3" : 26,
+        "stirrer_4" : 25,
+        "stirrer_5" : 33,
+        "ultrasonic_trigger" : 13,
+        "ultrasonic_echo" : 35
+    },
+    "i2c" : {
+        "ec" : 100,
+        "ph" : 99,
+        "I2C_clock" : 22,
+        "I2C_data": 21
+    },
+    "ssid" : "paradox 2.4 A",
+    "password" : "mdbscmsc",
+    "esp_type" : {
+        "solenoids" : 0,
+        "data_reader" : 1,
+        "data_uploader" : 1,
+        "pump" : 0,
+        "lights" : 0,
+        "ec_reader": 1,
+        "pH_reader": 1,
+        "pressure_reader": 0,
+        "temperature_reader": 1,
+        "water_level": 1,
+        "nutrient_controller": 1
+    },
+    "reservoir_height": 28,
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
