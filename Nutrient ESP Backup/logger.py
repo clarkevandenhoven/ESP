@@ -1,5 +1,6 @@
 
 
+
 # This class handles application logging
 import machine
 
@@ -14,7 +15,7 @@ class Logger:
     def log(self, log_str):
         curr_time = str(machine.RTC().datetime())
         f = open(self.file_name, "a")
-        f.write(curr_time + " " + log_str)
+        f.write(curr_time + " " + log_str + "\n")
         f.close()
 
     # Input: None
@@ -22,6 +23,8 @@ class Logger:
     # Uploads current log file to class' upload_endpoint
     def upload():
         pass
+
+
 
 
 
