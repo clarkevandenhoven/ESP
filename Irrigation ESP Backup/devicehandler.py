@@ -1,21 +1,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # This class serves as an interface between the ESP and the sensors
 import machine
 from time import sleep, sleep_ms
@@ -96,16 +81,15 @@ class DeviceHandler:
         #Caclulate pressure
         pressure = 0
         voltagem = 0
-        for i in range(100):
+        for i in range(500):
             adc_value = adc.read()
             voltage = 3.3 * (adc_value / 4095)
             voltagem += voltage
-            pressure = pressure + 42 * voltage
 
-        print(voltagem / i)
-        self.logger.log("Pressure: " + str(pressure/i))
-
-        return pressure / i
+        pressure = 49.4*voltagem/i - 10.5
+        self.logger.log("Pressure: " + str(pressure))
+        print (str(pressure))
+        return pressure
 
     def read_ds18b20(self, pin):
         sensor = ds18x20.DS18X20(onewire.OneWire(self.pins[pin]))
@@ -370,7 +354,35 @@ class DeviceHandler:
     def fan_lower_off(self):
         self.pins["fan_lower"].off()
     
-    
+    def read_adc(self):
+        
+        adc = machine.ADC(self.pins["pressure_sensor"])
+        adc.atten(machine.ADC.ATTN_11DB)
+        adc.width(machine.ADC.WIDTH_12BIT)
+
+        #Caclulate pressure
+        pressure = 0
+
+        adc_value = adc.read()
+        voltage = 3.3 * (adc_value / 4095)
+
+        pressure = pressure + 42 * voltage
+        print (adc_value)
+        print (voltage)
+        print (pressure)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
