@@ -1,8 +1,3 @@
-<<<<<<< Updated upstream
-
-
-
-
 # This class serves as an interface between the ESP and the sensors
 import machine
 from time import sleep, sleep_ms
@@ -11,6 +6,9 @@ import ds18x20
 import onewire
 import dht
 from logger import Logger
+from machine import Pin, PWM
+from hcsr04 import HCSR04
+
 class DeviceHandler:
 
     ESP_LOG_FILE = "esp_log.txt"
@@ -21,6 +19,7 @@ class DeviceHandler:
         self.configs = configs[self.id]
         # This is a dictionary of all the available pins, allowing pins to be accessed with self.pins["pump"]
         self.pins = self.configure_pins()
+        self.PWM = self.configure_PWM()
         # Initializes the I2C machine
         self.i2c = self.configure_i2c()
 
@@ -34,12 +33,22 @@ class DeviceHandler:
     def configure_pins(self):
         pin_dict = {}
         for pin in self.configs["pin"]:
-            if pin != "pressure_sensor" and pin != "DS18B20_reservoir" and pin != "DS18B20_lower":
+            if pin == "ultrasonic_echo" or pin == "ultrasonic_trigger":
+                self.water_level_sensor = HCSR04(trigger_pin=self.configs["pin"]["ultrasonic_trigger"], 
+                echo_pin=self.configs["pin"]["ultrasonic_echo"], echo_timeout_us=1000000)
+            elif pin != "pressure_sensor" and pin != "DS18B20_reservoir" and pin != "DS18B20_lower":
                 print(pin)
                 pin_dict[pin] = machine.Pin(self.configs["pin"][pin], machine.Pin.OUT)
             else:
                 pin_dict[pin] = machine.Pin(self.configs["pin"][pin])
         return pin_dict
+    
+    def configure_PWM(self):
+        PWM_dict = {}
+        for pin in self.pins:
+            if "stirrer" in pin:
+                PWM_dict[pin] = PWM(self.pins[pin])
+        return PWM_dict
 
     def read_ec(self):
         ec_address = self.configs["i2c"]["ec"]
@@ -50,7 +59,7 @@ class DeviceHandler:
         data = self.i2c.readfrom(ec_address, 9).decode("utf-8")
         ec, ppm = data[1:].split(",")
         self.logger.log("EC: " + str(ec) + ", PPM: " + str(ppm))
-        return ec, ppm
+        return ec
 
     def read_ph(self):
         ph_address = self.configs["i2c"]["ph"]
@@ -61,19 +70,47 @@ class DeviceHandler:
 
         ph = data[1:]
         self.logger.log("pH: " + str(ph))
+        # outputs pH as a string
         return ph
 
+    def read_water_level(self):
+        water_distance = self.water_level_sensor.distance_cm()
+        return self.configs["reservoir_height"] - water_distance
+    
+    def add_water(self):
+        self.pins["p_pump6"].on()
+        sleep(15)
+        self.pins["p_pump6"].off()
+    
+    def add_nutrient(self, num):
+        self.stirrer_on(num)
+        sleep(15)
+        self.stirrer_off(num)
+        str_num = str(num)
+        pump_name = "p_pump" + str_num
+        self.pins[pump_name].on()
+        sleep(5)
+        self.pins[pump_name].off()
 
     def set_initial_state(self):
-        self.pins["light_upper_outer"].on()
-        self.pins["light_upper_inner"].on()
-        self.pins["light_lower_outer"].on()
-        self.pins["light_lower_inner"].on()
-        self.pins["solenoid_lower_left"].off()
-        self.pins["solenoid_lower_right"].off()
-        self.pins["solenoid_upper_left"].off()
-        self.pins["solenoid_upper_right"].off()
-        self.pins["main_pump"].on()
+        if self.configs["esp_type"]["lights"]:
+            self.pins["light_upper_outer"].on()
+            self.pins["light_upper_inner"].on()
+            self.pins["light_lower_outer"].on()
+            self.pins["light_lower_inner"].on()
+        if self.configs["esp_type"]["solenoids"]:
+            self.pins["solenoid_lower_left"].off()
+            self.pins["solenoid_lower_right"].off()
+            self.pins["solenoid_upper_left"].off()
+            self.pins["solenoid_upper_right"].off()
+        if self.configs["esp_type"]["pump"]:
+            self.pins["main_pump"].on()
+        if self.configs["esp_type"]["nutrient_controller"]:
+            for stir_num in range(1,6):
+                self.stirrer_off(stir_num)
+            for pump_num in range(1,7):
+                self.p_pump_off(pump_num)
+            self.circulation_pump_off()
 
     def read_pressure(self):
         adc = machine.ADC(self.pins["pressure_sensor"])
@@ -83,16 +120,15 @@ class DeviceHandler:
         #Caclulate pressure
         pressure = 0
         voltagem = 0
-        for i in range(100):
+        for i in range(500):
             adc_value = adc.read()
             voltage = 3.3 * (adc_value / 4095)
             voltagem += voltage
-            pressure = pressure + 42 * voltage
 
-        print(voltagem / i)
-        self.logger.log("Pressure: " + str(pressure/i))
-
-        return pressure / i
+        pressure = 49.4*voltagem/i - 10.5
+        self.logger.log("Pressure: " + str(pressure))
+        print (str(pressure))
+        return pressure
 
     def read_ds18b20(self, pin):
         sensor = ds18x20.DS18X20(onewire.OneWire(self.pins[pin]))
@@ -105,6 +141,7 @@ class DeviceHandler:
             for rom in roms:
                 temp = sensor.read_temp(rom)
                 temps.append(temp)
+                
         except OSError as e:
             self.logger.log("Failed to read DS18B20 sensor")
             temp = 0
@@ -141,13 +178,15 @@ class DeviceHandler:
         if self.configs["esp_type"]["pH_reader"]:
             data["pH"] = self.read_ph()
         if self.configs["esp_type"]["ec_reader"]:
-            data["ec"] = self.reac_ec()
+            data["ec"] = self.read_ec()
         if self.configs["esp_type"]["temp_reader"]:
-            data["temperature_reservoir"] = self.read_ds18b20("DS18B20_reservoir")
+            #data["temperature_reservoir"] = self.read_ds18b20("DS18B20_reservoir")
             data["temperature_root_upper"] = self.read_ds18b20("DS18B20_root_upper")
             data["temperature_root_lower"] = self.read_ds18b20("DS18B20_root_lower")
             data["temperature_plant_upper"] = self.read_ds18b20("DS18B20_plant_upper")
-            data["tempearture_plant_lower"] = self.read_ds18b20("DS18B20_plant_lower")
+            data["temperature_plant_lower"] = self.read_ds18b20("DS18B20_plant_lower")
+        if self.configs["esp_type"]["water_level"]:
+            data["water_level"] = self.read_water_level()
         return data
 
 
@@ -235,7 +274,8 @@ class DeviceHandler:
         for pin in self.pins:
             if "plant" in pin and "DHT" not in pin:
                 temperatures = self.read_ds18b20(pin)
-                measured_temperature = sum(temperatures) / len(temperatures)
+                measured_temperature = sum(temperatures) / 2
+                print (measured_temperature)
                 if measured_temperature > self.configs["fan_trigger_temperature"]:
                     if "lower " in pin:
                         self.pins["fan_lower"].on()
@@ -338,16 +378,6 @@ class DeviceHandler:
 
 
 
-    def p_pump_on(self):
-        p_pump = []
-        if "p_pump" in self.configs[pin].key:
-            p_pump.append(self.configs[pin])
-        for pump in p_pump:
-            pump.on()
-            sleep(10)
-            pump.off()
-
-
     def fan_upper_on(self):
         self.pins["fan_upper"].on()
 
@@ -361,3 +391,82 @@ class DeviceHandler:
         self.pins["fan_lower"].off()
 
 
+
+    def p_pump_on(self):
+        p_pump = []
+        for pump in ["p_pump1", "p_pump2", "p_pump3", "p_pump4", "p_pump5"]:
+            p_pump.append(self.pins[pump])
+        for pump in p_pump:
+            print(pump)
+            pump.on()
+            sleep(3)
+            pump.off()
+    
+    def p_pump_off(self, pump_num):
+        pump_str = "p_pump" + str(pump_num)
+        self.pins[pump_str].off()
+
+
+
+    def p_pump1_on(self):
+        self.pins["p_pump1"].on()
+    
+    def p_pump1_off(self):
+        self.pins["p_pump1"].off()
+    
+    def p_pump2_on(self):
+        self.pins["p_pump2"].on()
+    
+    def p_pump2_off(self):
+        self.pins["p_pump2"].off()
+    
+    def p_pump3_on(self):
+        self.pins["p_pump3"].on()
+    
+    def p_pump3_off(self):
+        self.pins["p_pump3"].off()
+    
+    def p_pump4_on(self):
+        self.pins["p_pump4"].on()
+    
+    def p_pump4_off(self):
+        self.pins["p_pump4"].off()
+    
+    def p_pump5_on(self):
+        self.pins["p_pump5"].on()
+    
+    def p_pump5_off(self):
+        self.pins["p_pump5"].off()
+    
+    def p_pump6_on(self):
+        self.pins["p_pump6"].on()
+    
+    def p_pump6_off(self):
+        self.pins["p_pump6"].off()
+    
+    
+    
+    def stirrer_on(self, stirrer_num):
+        stirrer_str = "stirrer_" + str(stirrer_num)
+        # Set the current high on startup
+        self.PWM[stirrer_str].duty(900)
+        sleep_ms(400)
+        self.PWM[stirrer_str].duty(500)
+    
+    def stirrer_off(self, stirrer_num):
+        stirrer_str = "stirrer_" + str(stirrer_num)
+        self.PWM[stirrer_str].duty(0)
+    
+    def circulation_pump_on(self):
+        self.pins["circulation_pump"].off()
+    
+    def circulation_pump_off(self):
+        self.pins["circulation_pump"].on()
+    
+    
+    def pin_off(self, name):
+        self.pins[name].off()
+    
+    def pin_on(self, name):
+        self.pins[name].off()
+        

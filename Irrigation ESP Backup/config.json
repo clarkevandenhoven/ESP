@@ -1,68 +1,140 @@
-
 { 
-  "b'\\x10R\\x1cb\\xcdt'": {
-	"phase": {
-		"veg": {
-			"length_in_days": 30,
-			"light_hours": 18
-		},
-		"bloom": {
-			"length_in_days": 20,
-			"light_hours": 12
-		},
-		"germ": {
-			"length_in_days": 5,
-			"light_hours": 16
-		}
-	},
-	"light_trigger_hour": 10,
-	"password": "mdbscmsc",
-	"i2c": {
-		"ph": 99,
-		"I2C_clock": 22,
-		"ec": 100,
-		"I2C_data": 21
-	},
-	"pin": {
-		"solenoid_lower_right": 26,
-		"DHT22_plant_lower_left": 33,
-		"main_pump": 18,
-		"DHT22_plant_lower_right": 32,
-		"DS18B20_root_upper": 17,
-		"light_lower_inner": 22,
-		"solenoid_lower_left": 25,
-		"solenoid_upper_left": 32,
-		"pressure_sensor": 36,
-		"solenoid_upper_right": 33,
-		"DS18B20_plant_upper": 5,
-		"light_upper_inner": 19,
-		"fan_lower": 16,
-		"DS18B20_plant_lower": 14,
-		"DS18B20_root_lower": 27,
-		"light_lower_outer": 23,
-		"fan_upper": 4,
-		"light_upper_outer": 21
-	},
-	"esp_type": {
-		"data_uploader": 0,
-		"pH_reader": 0,
-		"ec_reader": 0,
-		"pump": 1,
-		"temp_reader": 0,
-		"solenoids": 1,
-		"data_reader": 1,
-		"pressure_reader": 1,
-		"lights": 1,
-    "fans": 1
-	},
-	"date": {
-		"lower_grow_start_date": "2020, 10, 1, 0, 0, 0, 0, 275, -1",
-		"upper_grow_start_date": "2020, 10, 1, 0, 0, 0, 0, 275, -1"
-	},
-  "fan_trigger_temperature": 29,
-	"serial": "/dev/cu.SLAB_USBtoUART",
-	"ssid": "paradox 2.4 A"
-  }
+    "__comment1__": "This is the configuration data for the irrigation ESP (rightmost)",
+    
+    "b'\\x10R\\x1cb\\xcdt'": {
+        "phase": {
+            "veg": {
+                "length_in_days": 30,
+                "light_hours": 18
+            },
+            "bloom": {
+                "length_in_days": 20,
+                "light_hours": 12
+            },
+            "germ": {
+                "length_in_days": 5,
+                "light_hours": 16
+            }
+        },
+        "i2c": {
+            "ph": 99,
+            "I2C_clock": 22,
+            "ec": 100,
+            "I2C_data": 21
+        },
+        "pin": {
+            "main_pump": 18,
+            "pressure_sensor": 39,
+            
+            "solenoid_lower_left": 25,
+            "solenoid_lower_right": 26,
+            "solenoid_upper_left": 32,
+            "solenoid_upper_right": 33,
+
+            "DS18B20_plant_lower": 14,
+            "DS18B20_plant_upper": 5,
+            "DS18B20_root_lower": 27,            
+            "DS18B20_root_upper": 17,
+            
+            "fan_lower": 16,
+            "fan_upper": 4,
+            
+            "light_lower_inner": 22,
+            "light_lower_outer": 23,
+            "light_upper_inner": 19,
+            "light_upper_outer": 21
+        },
+        "esp_type": {
+            "solenoids" : 1,
+            "data_reader" : 1,
+            "data_uploader" : 1,
+            "pump" : 1,
+            "lights" : 1,
+            "ec_reader": 0,
+            "pH_reader": 0,
+            "pressure_reader": 1,
+            "temp_reader": 1,
+            "reservoir_temp_reader": 0,
+            "water_level": 0,
+            "nutrient_controller": 0,
+            "fans": 1
+        },
+        "date": {
+            "lower_grow_start_date": "2020, 10, 1, 0, 0, 0, 0, 275, -1",
+            "upper_grow_start_date": "2020, 10, 1, 0, 0, 0, 0, 275, -1"
+        },
+        "light_trigger_hour": 10,
+        "loop_frequency": 180,
+        "fan_trigger_temperature": 29,
+        "serial": "/dev/cu.SLAB_USBtoUART",
+        "ssid": "paradox 2.4 A",
+        "password": "mdbscmsc"
+    }
+    
+    
+    
+    "__comment2__": "This is the configuration data for the nutreint ESP (leftmost)",
+    
+    "b'$b\\xab\\xdc?\\xd8'": {
+        "date": {
+            "upper_grow_start_date" : "(2020, 10, 1, 0, 0, 0, 644415)",
+            "lower_grow_start_date" : "(2020, 9, 22, 1, 0, 0, 0, 644415)"
+        },
+        "phase" : {
+            "germ" : {
+                "light_hours" : 16,
+                "length_in_days" : 5
+            },
+            "veg" : {
+                "light_hours" : 18,
+                "length_in_days": 30
+            },
+            "bloom" : {
+                "light_hours" : 12,
+                "length_in_days" : 20
+            }
+        },
+        "light_trigger_hour" : 10,
+        "pin" : {
+            "p_pump1" : 15,
+            "p_pump2" : 4,
+            "p_pump3": 16,
+            "p_pump4" : 17,
+            "p_pump5" : 5,
+            "p_pump6" : 18,
+            "stirrer_1" : 14, 
+            "stirrer_2" : 27,
+            "stirrer_3" : 26,
+            "stirrer_4" : 25,
+            "stirrer_5" : 33,
+            "ultrasonic_trigger" : 13,
+            "ultrasonic_echo" : 35,
+            "circulation_pump" : 23
+        },
+        "i2c" : {
+            "ec" : 100,
+            "ph" : 99,
+            "I2C_clock" : 22,
+            "I2C_data": 21
+        },
+        "ssid" : "paradox 2.4 A",
+        "password" : "mdbscmsc",
+        "esp_type" : {
+            "solenoids" : 0,
+            "data_reader" : 1,
+            "data_uploader" : 1,
+            "pump" : 0,
+            "lights" : 0,
+            "ec_reader": 1,
+            "pH_reader": 1,
+            "pressure_reader": 0,
+            "temp_reader": 0,
+            "reservoir_temp_reader": 1,
+            "water_level": 1,
+            "nutrient_controller": 1,
+            "fans": 0
+        },
+        "loop_frequency": 300,
+        "reservoir_height": 28,
+    }
 }
-
-

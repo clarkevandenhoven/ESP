@@ -1,17 +1,8 @@
 
-
-
-
-
-
-
-
-
-
 { 
     "__comment1__": "This is the configuration data for the irrigation ESP (rightmost)",
     
-    "b'\\x8c\\xaa\\xb5\\x8b\\xf3\\xe8'": {
+    "b'\\x10R\\x1cb\\xcdt'": {
         "phase": {
             "veg": {
                 "length_in_days": 30,
@@ -145,6 +136,7 @@
         "reservoir_height": 28,
     }
 }
+
 
 
 

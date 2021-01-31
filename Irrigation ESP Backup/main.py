@@ -1,48 +1,19 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Main file that gets executed
 import os 
 import machine
+from time import sleep, time
 from system import System
 
 
-#System().run()
+#for i in range(1):
+  #s = System()
+  #sleep(1)
+  #s.turn_off_pump()
+  #s.lights_off()
+  #sleep(5)
+  #s.run()
+
+System().run()
 #System().close_solenoids()
 #System().open_solenoids()
 #System().turn_on_pump()
@@ -75,29 +46,4 @@ from system import System
 #print("hello")
 
 #System().set_initial_state()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

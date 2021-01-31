@@ -1,4 +1,3 @@
-
 # This class handles the coordination of the boards functions
 import ujson
 import network
@@ -8,12 +7,12 @@ from time import sleep, time
 from datauploader import DataUploader
 from devicehandler import DeviceHandler
 from logger import Logger
+
 class System:
 
     ESP_LOG_FILE = "esp_log.txt"
-    MAX_CONNECT_ATTEMPTS = 10
+    MAX_CONNECT_ATTEMPTS = 50
     # Rate in seconds at whcih data will be uploaded
-    UPLOAD_FREQUENCY = 180
 
     def __init__(self, config_file="config.json"):
         self.logger = Logger(self.ESP_LOG_FILE)
@@ -49,10 +48,19 @@ class System:
 
         self.logger.log("Connection successful")
         self.logger.log(str(station.ifconfig()))
+    
+    def retry_fun(self, fun, max_tries=10):
+        for i in range(max_tries):
+            try:
+                sleep(1)
+                fun()
+                break
+            except OSError:
+                continue
 
     def start(self):
         self.connect_wifi()
-        ntptime.settime()
+        self.retry_fun(ntptime.settime)
         self.device_handler.set_initial_state()
 
     def run(self):
@@ -71,10 +79,37 @@ class System:
                  self.device_handler.check_lights()
             if self.configs[self.id]["esp_type"]["fans"]:
                  self.device_handler.check_fans()
+            if self.configs[self.id]["esp_type"]["water_level"]:
+                 self.fill_water()
+            if self.configs[self.id]["esp_type"]["nutrient_controller"]:
+                 self.fill_all_nutrients()
+                 self.fix_ph()
         # This allows us to always upload at exactly the UPLOAD_FREQUENCY cadence
-            sleep(self.UPLOAD_FREQUENCY - (time() - start_time) % self.UPLOAD_FREQUENCY)
+            sleep(self.configs[self.id]["loop_frequency"] - (time() - start_time) % self.configs[self.id]["loop_frequency"])
         self.logger.log("Process stopped")
+    
+    def fill_water(self):
+        water_level = self.device_handler.read_water_level()
+        if water_level < 0.6 * self.configs[self.id]["reservoir_height"]:
+            self.device_handler.add_water()
 
+    
+    def fill_all_nutrients(self):
+        self.device_handler.circulation_pump_on()
+        for cont in range(1,4):
+            self.device_handler.add_nutrient(cont)
+        sleep(15)
+        self.device_handler.circulation_pump_off()
+    
+    def fix_ph(self):
+        self.device_handler.circulation_pump_on()
+        while float(self.device_handler.read_ph()) > 8: 
+            self.device_handler.add_nutrient(4)
+        while float(self.device_handler.read_ph()) < 5.5:
+            self.device_handler.add_nutrient(5)
+        sleep(15)
+        self.device_handler.circulation_pump_off()
+    
     def test_loops(self):
         while True:
             self.device_handler.open_close_solenoids()
@@ -93,6 +128,10 @@ class System:
     def test_ph(self):
         pH = self.device_handler.read_ph()
         print("pH: " + str(pH))
+
+    def test_water_level(self):
+        water_level = self.device_handler.read_water_level()
+        print("Water level: " + str(water_level))
 
     def test_pressure(self):
           pressure = self.device_handler.read_pressure()
@@ -185,3 +224,57 @@ class System:
         self.device_handler.set_initial_state()
 
 
+    def p_pump_on(self):
+        self.device_handler.p_pump_on()
+   
+   
+   
+    def p_pump1_on(self):
+        self.device_handler.p_pump1_on()
+    
+    def p_pump1_off(self):
+        self.device_handler.p_pump1_off()
+    
+    def p_pump2_on(self):
+        self.device_handler.p_pump2_on()
+    
+    def p_pump2_off(self):
+        self.device_handler.p_pump2_off()
+    
+    def p_pump3_on(self):
+        self.device_handler.p_pump3_on()
+    
+    def p_pump3_off(self):
+        self.device_handler.p_pump3_off()
+    
+    def p_pump4_on(self):
+        self.device_handler.p_pump4_on()
+    
+    def p_pump4_off(self):
+        self.device_handler.p_pump4_off()
+    
+    def p_pump5_on(self):
+        self.device_handler.p_pump5_on()
+    
+    def p_pump5_off(self):
+        self.device_handler.p_pump5_off()
+   
+    def p_pump6_on(self):
+        self.device_handler.p_pump6_on()
+    
+    def p_pump6_off(self):
+        self.device_handler.p_pump6_off()
+   
+    
+    def stirrer_on(self, stirrer_num):
+        self.device_handler.stirrer_on(stirrer_num)
+    
+    def stirrer_off(self, stirrer_num):
+        self.device_handler.stirrer_off(stirrer_num)
+
+
+    def circulation_pump_on(self):
+        self.device_handler.circulation_pump_on()
+    
+    def circulation_pump_off(self):
+        self.device_handler.circulation_pump_off()
