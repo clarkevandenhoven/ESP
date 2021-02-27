@@ -8,6 +8,12 @@
 
 
 
+
+
+
+
+
+
 # This class handles the coordination of the boards functions
 import ujson
 import network
@@ -92,7 +98,6 @@ class System:
             if self.configs[self.id]["esp_type"]["water_level"]:
                  self.fill_water()
             if self.configs[self.id]["esp_type"]["nutrient_controller"]:
-                 self.fill_all_nutrients()
                  self.fix_ph()
         # This allows us to always upload at exactly the UPLOAD_FREQUENCY cadence
             sleep(self.configs[self.id]["loop_frequency"] - (time() - start_time) % self.configs[self.id]["loop_frequency"])
@@ -101,22 +106,34 @@ class System:
     def fill_water(self):
         water_level = self.device_handler.read_water_level()
         if water_level < 0.6 * self.configs[self.id]["reservoir_height"]:
-            self.device_handler.add_water()
+            self.device_handler.add_water(896)
+            #907 seconds (15.1 minutes) = approx 1500mL of water
+            self.fill_all_nutrients()
+            self.logger.log("1.5L of water added")
+        else:
+            self.device_handler.circulation_pump_on()
+            sleep(15)
+            self.device_handler.circulation_pump_off()
 
     
     def fill_all_nutrients(self):
         self.device_handler.circulation_pump_on()
         for cont in range(1,4):
-            self.device_handler.add_nutrient(cont)
+            self.device_handler.add_nutrient(cont, 1.7)
+            #1.7 seconds = approx 2.0mL of nutrients
         sleep(15)
         self.device_handler.circulation_pump_off()
     
     def fix_ph(self):
         self.device_handler.circulation_pump_on()
-        while float(self.device_handler.read_ph()) > 8: 
-            self.device_handler.add_nutrient(4)
-        while float(self.device_handler.read_ph()) < 5.5:
-            self.device_handler.add_nutrient(5)
+        if float(self.device_handler.read_ph()) > 7: 
+            self.device_handler.add_nutrient(4, 3.3)
+            self.logger.log("3.8mL of pH down added")
+            #add pH down, 3.5 seconds = approx 3.8mL of pH down
+        if float(self.device_handler.read_ph()) < 6.5:
+            self.device_handler.add_nutrient(5, 3.3)
+            self.logger.log("3.8mL of pH up added")
+            #add pH up, 3.5 seconds = approx 3.8mL of pH up
         sleep(15)
         self.device_handler.circulation_pump_off()
     
@@ -275,6 +292,10 @@ class System:
     def p_pump6_off(self):
         self.device_handler.p_pump6_off()
    
+    def all_stirrer_off(self):
+        for i in range (1,6):
+            self.device_handler.stirrer_off(i)
+    
     
     def stirrer_on(self, stirrer_num):
         self.device_handler.stirrer_on(stirrer_num)
@@ -288,6 +309,12 @@ class System:
     
     def circulation_pump_off(self):
         self.device_handler.circulation_pump_off()
+
+
+
+
+
+
 
 
 

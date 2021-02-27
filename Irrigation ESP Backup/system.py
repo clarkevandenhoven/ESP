@@ -1,3 +1,7 @@
+
+
+
+
 # This class handles the coordination of the boards functions
 import ujson
 import network
@@ -278,3 +282,9 @@ class System:
     
     def circulation_pump_off(self):
         self.device_handler.circulation_pump_off()
+
+
+
+
+
+

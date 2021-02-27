@@ -1,6 +1,10 @@
+
+
+
+
 # This class serves as an interface between the ESP and the sensors
 import machine
-from time import sleep, sleep_ms
+from time import time, sleep, sleep_ms
 from utime import mktime
 import ds18x20
 import onewire
@@ -94,10 +98,10 @@ class DeviceHandler:
 
     def set_initial_state(self):
         if self.configs["esp_type"]["lights"]:
-            self.pins["light_upper_outer"].on()
-            self.pins["light_upper_inner"].on()
-            self.pins["light_lower_outer"].on()
-            self.pins["light_lower_inner"].on()
+            self.pins["light_upper_outer"].off()
+            self.pins["light_upper_inner"].off()
+            self.pins["light_lower_outer"].off()
+            self.pins["light_lower_inner"].off()
         if self.configs["esp_type"]["solenoids"]:
             self.pins["solenoid_lower_left"].off()
             self.pins["solenoid_lower_right"].off()
@@ -126,25 +130,26 @@ class DeviceHandler:
             voltagem += voltage
 
         pressure = 49.4*voltagem/i - 10.5
-        self.logger.log("Pressure: " + str(pressure))
-        print (str(pressure))
+        #self.logger.log("Pressure: " + str(pressure))
+        #print (str(pressure))
         return pressure
 
     def read_ds18b20(self, pin):
         sensor = ds18x20.DS18X20(onewire.OneWire(self.pins[pin]))
-        try:
-            roms = sensor.scan()
-            sensor.convert_temp()
-            sleep_ms(750)
-            temps = []
-            # measure the right then the left sensors
-            for rom in roms:
+        roms = sensor.scan()
+        sensor.convert_temp()
+        sleep_ms(750)
+        temps = []
+
+        for rom in roms:
+            try:
                 temp = sensor.read_temp(rom)
-                temps.append(temp)
-                
-        except OSError as e:
-            self.logger.log("Failed to read DS18B20 sensor")
-            temp = 0
+                # measure the right then the left sensors
+            except:
+                print("Failed to read DS18B20 sensor")
+                #self.logger.log("Failed to read DS18B20 sensor")
+                temp = -100
+            temps.append(temp)
         return temps
 
     def read_dht22(self, pin):
@@ -223,19 +228,32 @@ class DeviceHandler:
         if shelf == "upper":
             if grow_phase == "germ":
                 self.pins["light_upper_inner"].on()
+                #turn upper inner lights on
+                print("Germ Phase - Turning upper inner lights on")
             elif grow_phase == "veg":
                 self.pins["light_upper_outer"].on()
+                #turn upper outer lights on
+                print("Veg Phase - Turning upper outer lights on")
             else:
                 self.pins["light_upper_inner"].on()
                 self.pins["light_upper_outer"].on()
+                #turn all upper lights on
+                print("Bloom Phase - Turning all upper lights on")
         else:
+            #for lower shelf
             if grow_phase == "germ":
                 self.pins["light_lower_outer"].on()
-            if grow_phase == "veg":
+                #turn lower outer lights on
+                print("Germ Phase - Turning lower outer lights on")
+            elif grow_phase == "veg":
                 self.pins["light_lower_inner"].on()
+                #turn lower inner lights on
+                print("Veg Phase - Turning lower inner lights on")
             else:
                 self.pins["light_lower_outer"].on()
                 self.pins["light_lower_inner"].on()
+                #turn all lower lights on
+                print("Bloom Phase - turning all lower lights on")
 
     def turn_lights_off(self, grow_phase, shelf):
 
@@ -256,6 +274,14 @@ class DeviceHandler:
 
             current_time = machine.RTC().datetime()
             current_hour = current_time[4]
+            
+            print("Shelf:", shelf)
+            print("Current phase:", phase)
+            print("Current time:", current_time)
+            print("Current hour:", current_hour)
+            print("Lights turn off at:", self.configs["light_trigger_hour"])
+            print("Lights turn on at:", self.configs["light_trigger_hour"] + light_off_duration)
+            
 
             if current_hour == self.configs["light_trigger_hour"]:
                 self.logger.log("Turn " + shelf + " light off")
@@ -266,23 +292,41 @@ class DeviceHandler:
 
     def check_pump(self):
         if self.read_pressure() < 80:
-            while self.read_pressure() < 100:
+            pump_start_time = time()
+            pump_elapsed_time = 0
+            while self.read_pressure() < 100 and pump_elapsed_time < 60:
                  self.turn_on_pump()
+                 pump_elapsed_time = time() - pump_start_time
+                 #print("Pump elapsed time:", pump_elapsed_time)
             self.turn_off_pump()
 
     def check_fans(self):
         for pin in self.pins:
             if "plant" in pin and "DHT" not in pin:
-                temperatures = self.read_ds18b20(pin)
-                measured_temperature = sum(temperatures) / 2
+                #print (len(temperatures))
+                attempt = 0
+                
+                for attempt in range (5):
+                    print (attempt)
+                    temperatures = self.read_ds18b20(pin)
+                    print (temperatures)
+                    if len(temperatures) == 2 and sum(temperatures) > 0:
+                        measured_temperature = sum(temperatures) / 2
+                        break
+                    elif attempt == 4:
+                        #max attempts reached, use measurement from single sensor if possible
+                        print("max attempts reached")
+                        measured_temperature = sum(temperatures)
+                    sleep_ms(100)
                 print (measured_temperature)
+                print (pin)
                 if measured_temperature > self.configs["fan_trigger_temperature"]:
-                    if "lower " in pin:
+                    if "lower" in pin:
                         self.pins["fan_lower"].on()
                     if "upper" in pin:
                         self.pins["fan_upper"].on()
                 else:
-                    if "lower " in pin:
+                    if "lower" in pin:
                         self.pins["fan_lower"].off()
                     if "upper" in pin:
                         self.pins["fan_upper"].off()
@@ -468,5 +512,36 @@ class DeviceHandler:
         self.pins[name].off()
     
     def pin_on(self, name):
-        self.pins[name].off()
+        self.pins[name].on()
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

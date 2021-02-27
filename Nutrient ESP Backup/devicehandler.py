@@ -5,7 +5,6 @@
 
 
 
-
 # This class serves as an interface between the ESP and the sensors
 import machine
 from time import sleep, sleep_ms
@@ -83,21 +82,25 @@ class DeviceHandler:
 
     def read_water_level(self):
         water_distance = self.water_level_sensor.distance_cm()
-        return self.configs["reservoir_height"] - water_distance
+        water_level = self.configs["reservoir_height"] - water_distance
+        self.logger.log("Water Level: " + str(water_level))
+        return water_level
+
     
-    def add_water(self):
+    def add_water(self, dur):
         self.pins["p_pump6"].on()
-        sleep(15)
+        sleep(dur)
         self.pins["p_pump6"].off()
     
-    def add_nutrient(self, num):
+    def add_nutrient(self, num, dur):
         self.stirrer_on(num)
-        sleep(15)
+        sleep(60)
         self.stirrer_off(num)
+        sleep(5)
         str_num = str(num)
         pump_name = "p_pump" + str_num
         self.pins[pump_name].on()
-        sleep(5)
+        sleep(dur)
         self.pins[pump_name].off()
 
     def set_initial_state(self):
@@ -128,16 +131,15 @@ class DeviceHandler:
         #Caclulate pressure
         pressure = 0
         voltagem = 0
-        for i in range(100):
+        for i in range(500):
             adc_value = adc.read()
             voltage = 3.3 * (adc_value / 4095)
             voltagem += voltage
-            pressure = pressure + 42 * voltage
 
-        print(voltagem / i)
-        self.logger.log("Pressure: " + str(pressure/i))
-
-        return pressure / i
+        pressure = 49.4*voltagem/i - 10.5
+        self.logger.log("Pressure: " + str(pressure))
+        print (str(pressure))
+        return pressure
 
     def read_ds18b20(self, pin):
         sensor = ds18x20.DS18X20(onewire.OneWire(self.pins[pin]))
@@ -150,6 +152,7 @@ class DeviceHandler:
             for rom in roms:
                 temp = sensor.read_temp(rom)
                 temps.append(temp)
+                
         except OSError as e:
             self.logger.log("Failed to read DS18B20 sensor")
             temp = 0
@@ -187,12 +190,14 @@ class DeviceHandler:
             data["pH"] = self.read_ph()
         if self.configs["esp_type"]["ec_reader"]:
             data["ec"] = self.read_ec()
-        if self.configs["esp_type"]["temp_reader"]:
+        if self.configs["esp_type"]["reservoir_temp_reader"]:
             data["temperature_reservoir"] = self.read_ds18b20("DS18B20_reservoir")
+        if self.configs["esp_type"]["temp_reader"]:
+            #data["temperature_reservoir"] = self.read_ds18b20("DS18B20_reservoir")
             data["temperature_root_upper"] = self.read_ds18b20("DS18B20_root_upper")
             data["temperature_root_lower"] = self.read_ds18b20("DS18B20_root_lower")
             data["temperature_plant_upper"] = self.read_ds18b20("DS18B20_plant_upper")
-            data["tempearture_plant_lower"] = self.read_ds18b20("DS18B20_plant_lower")
+            data["temperature_plant_lower"] = self.read_ds18b20("DS18B20_plant_lower")
         if self.configs["esp_type"]["water_level"]:
             data["water_level"] = self.read_water_level()
         return data
@@ -282,7 +287,8 @@ class DeviceHandler:
         for pin in self.pins:
             if "plant" in pin and "DHT" not in pin:
                 temperatures = self.read_ds18b20(pin)
-                measured_temperature = sum(temperatures) / len(temperatures)
+                measured_temperature = sum(temperatures) / 2
+                print (measured_temperature)
                 if measured_temperature > self.configs["fan_trigger_temperature"]:
                     if "lower " in pin:
                         self.pins["fan_lower"].on()
@@ -477,11 +483,6 @@ class DeviceHandler:
     def pin_on(self, name):
         self.pins[name].off()
         
-
-
-
-
-
 
 
 
